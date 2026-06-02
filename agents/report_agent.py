@@ -16,11 +16,11 @@ class ReportAgent:
         )
 
         report.append(
-            f"Source Environment : {workflow.get('source_env')}"
+            f"Source Environment : {workflow.get('source_tns', workflow.get('source_env'))}"
         )
 
         report.append(
-            f"Target Environment : {workflow.get('target_env')}"
+            f"Target Environment : {workflow.get('target_tns', workflow.get('target_env'))}"
         )
 
         report.append(
@@ -40,11 +40,11 @@ class ReportAgent:
         )
 
         report.append(
-            f"Source Database    : {source.get('environment')}"
+            f"Source Database    : {source.get('database')}"
         )
 
         report.append(
-            f"Target Database    : {target.get('environment')}"
+            f"Target Database    : {target.get('database')}"
         )
 
         report.append("")
@@ -60,7 +60,7 @@ class ReportAgent:
         report.append("")
 
         report.append(
-            f"Risk Level         : {workflow.get('risk_level')}"
+            f"Risk Level         : {workflow.get('risk_level', 'NOT_EVALUATED')}"
         )
 
         report.append(
@@ -70,11 +70,11 @@ class ReportAgent:
         report.append("")
 
         report.append(
-            f"Approval Required  : {workflow.get('approval_required')}"
+            f"Approval Required  : {workflow.get('approval_required', False)}"
         )
 
         report.append(
-            f"Drop Required      : {workflow.get('drop_required')}"
+            f"Drop Required      : {workflow.get('drop_required', False)}"
         )
 
         report.append("")
@@ -145,7 +145,7 @@ class ReportAgent:
         report.append(
             workflow.get(
                 "expdp_command",
-                ""
+                "Not Generated"
             )
         )
 
@@ -162,11 +162,32 @@ class ReportAgent:
         report.append(
             workflow.get(
                 "impdp_command",
-                ""
+                "Not Generated"
             )
         )
 
         report.append("")
+
+        if workflow.get("errors"):
+
+            report.append(
+                "ERRORS"
+            )
+
+            report.append(
+                "-" * 60
+            )
+
+            for error in workflow.get(
+                "errors",
+                []
+            ):
+
+                report.append(
+                    f"• {error}"
+                )
+
+            report.append("")
 
         return "\n".join(
             report

@@ -1,35 +1,23 @@
-from config.datapump_config import (
-    DATAPUMP_DIRECTORY,
-    DEFAULT_DUMP_EXTENSION,
-    DEFAULT_EXPORT_LOG_SUFFIX
+from executors.expdp_executor import (
+    ExpdpExecutor
 )
 
 
 class ExpdpAgent:
 
-    def generate_command(
+    def export_schema(
         self,
+        username,
+        password,
+        tns_alias,
         schema_name
     ):
 
-        schema_name = schema_name.upper()
+        executor = ExpdpExecutor()
 
-        dump_file = (
-            schema_name +
-            DEFAULT_DUMP_EXTENSION
+        return executor.run(
+            username,
+            password,
+            tns_alias,
+            schema_name
         )
-
-        log_file = (
-            schema_name +
-            DEFAULT_EXPORT_LOG_SUFFIX
-        )
-
-        command = (
-            f"expdp system/password "
-            f"schemas={schema_name} "
-            f"directory={DATAPUMP_DIRECTORY} "
-            f"dumpfile={dump_file} "
-            f"logfile={log_file}"
-        )
-
-        return command
