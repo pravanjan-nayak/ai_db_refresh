@@ -8,7 +8,6 @@ from db.dba_tasks import DBA_TASKS
 class SQLTool(BaseTool):
 
     name = "sql_tool"
-
     description = "Execute Oracle DBA SQL tasks"
 
     def run(self, task_name):
@@ -20,10 +19,9 @@ class SQLTool(BaseTool):
 
         query = DBA_TASKS[task_name]["query"]
 
-        if not query:
-            raise Exception(
-                f"No SQL defined for {task_name}"
-            )
+        return self.execute_sql(query)
+
+    def execute_sql(self, query):
 
         conn = get_connection()
 

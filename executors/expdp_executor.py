@@ -40,3 +40,7 @@ class ExpdpExecutor:
                 "***"
             )
         }
+
+    # Backwards-compatible alias expected by workflows
+    def execute(self, username, password, tns_alias, schema_name):
+        return self.run(username, password, tns_alias, schema_name)

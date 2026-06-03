@@ -1,44 +1,51 @@
+# workflow_engine.py
+
 from agents.risk_agent import get_risk_level
 from agents.approval_agent import requires_approval
 
 
-def start_workflow(workflow_name):
+class WorkflowEngine:
 
-    risk_level = get_risk_level(
-        workflow_name
-    )
+    def create_workflow_state(
+        self,
+        workflow_name,
+        source_tns=None,
+        target_tns=None,
+        schema_name=None
+    ):
 
-    state = {
+        risk_level = get_risk_level(workflow_name)
 
-        "workflow_name": workflow_name,
+        state = {
+            "workflow_name": workflow_name,
 
-        "risk_level": risk_level,
+            "source_tns": source_tns,
+            "target_tns": target_tns,
+            "schema_name": schema_name,
 
-        "status": "STARTING",
+            "risk_level": risk_level,
 
-        "current_step": None,
+            "status": "STARTING",
 
-        "completed_steps": [],
+            "current_step": None,
 
-        "pending_steps": [],
+            "completed_steps": [],
 
-        "approval_required": requires_approval(
-            risk_level
-        ),
+            "pending_steps": [],
 
-        "approval_received": False,
+            "approval_required": requires_approval(risk_level),
 
-        "result": None,
+            "approval_received": False,
 
-        "errors": []
-    }
+            "result": None,
 
-    if state["approval_required"]:
+            "errors": []
+        }
 
-        state["status"] = "WAITING_APPROVAL"
+        # Decide initial status
+        if state["approval_required"]:
+            state["status"] = "WAITING_APPROVAL"
+        else:
+            state["status"] = "READY"
 
-    else:
-
-        state["status"] = "READY"
-
-    return state
+        return state
