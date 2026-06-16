@@ -53,7 +53,7 @@ DBA_TASKS = {
         "query": """
             SELECT sid, serial#, username, status, machine, program
             FROM v$session
-            WHERE status = 'ACTIVE'
+            WHERE status = 'ACTIVE' and username IS NOT NULL
         """
     },
 
@@ -291,3 +291,140 @@ DBA_TASKS = {
         "query": None
     }
 }
+
+import re
+from typing import Optional, Tuple, Dict
+
+
+def normalize_question(question: str) -> str:
+    """
+    Normalize user question for matching.
+    """
+    return re.sub(r"\s+", " ", question.strip().lower())
+
+
+def extract_schema_name(question: str) -> Optional[str]:
+    """
+    Extract schema name from questions like:
+    - show all tables in HR
+    - list tables for schema SCOTT
+    - invalid objects in APPS
+    """
+    q = normalize_question(question)
+
+    patterns = [
+        r"(?:in|for|from)\s+schema\s+([a-zA-Z0-9_#$]+)",
+        r"show all tables in\s+([a-zA-Z0-9_#$]+)",
+        r"list tables in\s+([a-zA-Z0-9_#$]+)",
+        r"show tables in\s+([a-zA-Z0-9_#$]+)",
+        r"invalid objects in\s+([a-zA-Z0-9_#$]+)",
+        r"objects in\s+([a-zA-Z0-9_#$]+)",
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, q)
+        if match:
+            return match.group(1).upper()
+
+    return None
+
+
+def find_task_by_alias(question: str) -> Optional[str]:
+    """
+    Match user question against DBA_TASKS aliases.
+    Returns task key if matched, else None.
+    """
+    q = normalize_question(question)
+
+    # exact alias or contained alias matching
+    for task_name, task_data in DBA_TASKS.items():
+        aliases = task_data.get("aliases", [])
+        for alias in aliases:
+            alias_norm = normalize_question(alias)
+            if alias_norm == q or alias_norm in q:
+                return task_name
+
+    return None
+
+
+def match_known_task(question: str) -> Tuple[Optional[str], Optional[str], Dict]:
+    """
+    Returns:
+        (task_name, sql, meta)
+
+    meta example:
+        {
+            "confidence": 0.99,
+            "category": "status",
+            "description": "Database name..."
+        }
+    """
+    q = normalize_question(question)
+
+    # ---------------------------------------------------
+    # 1) Special handling for schema-based dynamic queries
+    # ---------------------------------------------------
+
+    # show all tables in HR
+    if "show all tables" in q or "list tables" in q or "show tables" in q:
+        schema = extract_schema_name(question)
+        if schema:
+            sql = f"""
+                SELECT owner, table_name
+                FROM dba_tables
+                WHERE owner = '{schema}'
+                ORDER BY table_name
+            """
+            return "tables_in_schema", sql.strip(), {
+                "confidence": 0.98,
+                "category": "objects",
+                "description": f"All tables in schema {schema}",
+                "schema": schema
+            }
+
+    # invalid objects in HR
+    if "invalid objects" in q:
+        schema = extract_schema_name(question)
+        if schema:
+            sql = f"""
+                SELECT owner, object_name, object_type, status
+                FROM dba_objects
+                WHERE status = 'INVALID'
+                  AND owner = '{schema}'
+                ORDER BY owner, object_type, object_name
+            """
+            return "invalid_objects_schema", sql.strip(), {
+                "confidence": 0.98,
+                "category": "security",
+                "description": f"Invalid objects in schema {schema}",
+                "schema": schema
+            }
+
+    # ---------------------------------------------------
+    # 2) Generic alias-based matching from existing DBA_TASKS
+    # ---------------------------------------------------
+    matched_task = find_task_by_alias(question)
+
+    if matched_task:
+        task_info = DBA_TASKS[matched_task]
+        sql = task_info.get("query")
+
+        # If query is None (logical backup / physical backup), let caller decide
+        if sql:
+            return matched_task, sql.strip(), {
+                "confidence": 0.95,
+                "category": task_info.get("category"),
+                "description": task_info.get("description")
+            }
+
+        return matched_task, None, {
+            "confidence": 0.90,
+            "category": task_info.get("category"),
+            "description": task_info.get("description"),
+            "action_only": True
+        }
+
+    # ---------------------------------------------------
+    # 3) No known match
+    # ---------------------------------------------------
+    return None, None, {"confidence": 0.0}

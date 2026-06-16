@@ -3,41 +3,6 @@ from tools.sql_tool import SQLTool
 from db.dba_tasks import match_known_task
 from workflows.sop_matcher import match_sop
 
-from typing import Dict, Any
-from workflows.change_planner import is_add_datafile_request
-def detect_change_request_route(user_text: str) -> Dict[str, Any]:
-    """
-    Detect whether the user request should go to the change-request workflow.
-    For now, supports add-datafile style requests only.
-    """
-    text = (user_text or "").strip()
-
-    if not text:
-        return {
-            "route": "none",
-            "action_type": "",
-            "confidence": 0.0,
-            "request_text": text,
-            "message": "Empty request text."
-        }
-
-    if is_add_datafile_request(text):
-        return {
-            "route": "change_request",
-            "action_type": "add_datafile",
-            "confidence": 0.95,
-            "request_text": text,
-            "message": "Matched add-datafile change request."
-        }
-
-    return {
-        "route": "none",
-        "action_type": "",
-        "confidence": 0.0,
-        "request_text": text,
-        "message": "No change-request match."
-    }
-
 def parse_sop_sections(content: str):
     sections = {
         "purpose": "",
@@ -75,8 +40,6 @@ def parse_sop_sections(content: str):
             sections["other"] += line + "\n"
 
     return sections
-
-
 # Optional LLM advisory fallback
 try:
     from agents.oracle_dba_agent import OracleDBAAgent
@@ -215,7 +178,6 @@ class WorkflowRouter:
                 print("========== QUERY END (SUCCESS: SOP MATCH) ==========")
 
                 cleaned_content = clean_sop_content(sop_match.get("content", ""))
-                parsed_sop = parse_sop_sections(cleaned_content)
 
                 return {
                     "success": True,
@@ -224,7 +186,7 @@ class WorkflowRouter:
                     "confidence": sop_match.get("confidence", 0.85),
                     "sql": None,
 
-                    # Keeps existing app.py from showing
+                    # Keeps your existing app.py from showing
                     # "Query executed — no rows returned."
                     "result": [
                         {
@@ -239,7 +201,6 @@ class WorkflowRouter:
                         f"{cleaned_content}"
                     ),
                     "sop_content": cleaned_content,
-                    "sop_sections": parsed_sop,
                     "title": sop_match.get("title")
                 }
 
@@ -348,4 +309,3 @@ class WorkflowRouter:
             "Also, LLM-based Oracle DBA interpretation is currently unavailable. "
             "Please review the request and consider adding it as a known task or SOP for more accurate handling."
         )
-    

@@ -1,0 +1,640 @@
+{
+  "requests": {
+    "CR-20260609-195231-642054": {
+      "request_id": "CR-20260609-195231-642054",
+      "request_text": "add 1 gb datafile to USERS tablespace",
+      "action_type": "add_datafile",
+      "tablespace_name": "USERS",
+      "requested_size_gb": 1,
+      "planner_result": {
+        "success": true,
+        "action_type": "add_datafile",
+        "request_text": "add 1 gb datafile to USERS tablespace",
+        "tablespace_name": "USERS",
+        "requested_size_gb": 1,
+        "recommendation": {
+          "valid": true,
+          "tablespace_name": "USERS",
+          "requested_size_gb": 1,
+          "safety_buffer_gb": 2,
+          "checks": [
+            {
+              "name": "tablespace_exists",
+              "status": "PASS",
+              "details": "Tablespace USERS exists."
+            },
+            {
+              "name": "tablespace_contents",
+              "status": "PASS",
+              "details": "Contents type = PERMANENT"
+            },
+            {
+              "name": "existing_datafiles",
+              "status": "PASS",
+              "details": "Found 1 existing datafile(s)."
+            },
+            {
+              "name": "storage_type",
+              "status": "PASS",
+              "details": "Detected storage type = FILESYSTEM"
+            },
+            {
+              "name": "directory_exists",
+              "status": "PASS",
+              "details": "Directory exists: C:\\AI Agents\\OracleAIDBAAgent-main\\OracleAIDBAAgent-main"
+            },
+            {
+              "name": "free_space_check",
+              "status": "PASS",
+              "details": "Free space on C:\\ = 47.16 GB; required = 3 GB (requested 1 GB + buffer 2 GB)"
+            }
+          ],
+          "existing_files": [
+            "C:\\AI Agents\\OracleAIDBAAgent-main\\OracleAIDBAAgent-main\\users_01.dbf"
+          ],
+          "storage_type": "FILESYSTEM",
+          "recommended_directory": "C:\\AI Agents\\OracleAIDBAAgent-main\\OracleAIDBAAgent-main",
+          "recommended_file_name": "users_02.dbf",
+          "recommended_file_path": "C:\\AI Agents\\OracleAIDBAAgent-main\\OracleAIDBAAgent-main\\users_02.dbf",
+          "drive_space": {
+            "drive_root": "C:\\",
+            "total_gb": 119.49,
+            "used_gb": 72.33,
+            "free_gb": 47.16
+          },
+          "sufficient_space": true,
+          "statement_preview": "ALTER TABLESPACE USERS ADD DATAFILE 'C:\\AI Agents\\OracleAIDBAAgent-main\\OracleAIDBAAgent-main\\users_02.dbf' SIZE 1G AUTOEXTEND ON NEXT 1G MAXSIZE 20G",
+          "errors": []
+        },
+        "status": "PLANNED",
+        "errors": []
+      },
+      "policy_result": {
+        "allowed": true,
+        "approval_required": true,
+        "execution_enabled": true,
+        "risk_level": "LOW",
+        "policy_messages": [
+          "Request is allowed by current policy.",
+          "Approval is required before execution.",
+          "Execution is enabled by policy."
+        ],
+        "policy_checks": [
+          {
+            "name": "planner_success",
+            "status": "PASS",
+            "details": "Planner success = True"
+          },
+          {
+            "name": "action_allowed",
+            "status": "PASS",
+            "details": "Action 'add_datafile' allowed actions = ['add_datafile']"
+          },
+          {
+            "name": "blocked_tablespace_check",
+            "status": "PASS",
+            "details": "Tablespace = USERS"
+          },
+          {
+            "name": "allowed_tablespace_check",
+            "status": "PASS",
+            "details": "No tablespace whitelist configured."
+          },
+          {
+            "name": "size_threshold_check",
+            "status": "PASS",
+            "details": "Requested size = 1 GB, max allowed = 20 GB"
+          },
+          {
+            "name": "recommendation_valid",
+            "status": "PASS",
+            "details": "Recommendation valid = True"
+          },
+          {
+            "name": "sufficient_space_check",
+            "status": "PASS",
+            "details": "Sufficient space = True"
+          }
+        ],
+        "environment_name": "UAT"
+      },
+      "approval_status": "PENDING",
+      "execution_status": "NOT_STARTED",
+      "approver": "",
+      "approval_time": "",
+      "rejection_reason": "",
+      "created_at": "2026-06-09 19:52:31",
+      "updated_at": "2026-06-09 19:52:31"
+    },
+    "CR-20260609-201723-472048": {
+      "request_id": "CR-20260609-201723-472048",
+      "request_text": "add 1 gb datafile to USERS tablespace",
+      "action_type": "add_datafile",
+      "tablespace_name": "USERS",
+      "requested_size_gb": 1,
+      "planner_result": {
+        "success": true,
+        "action_type": "add_datafile",
+        "request_text": "add 1 gb datafile to USERS tablespace",
+        "tablespace_name": "USERS",
+        "requested_size_gb": 1,
+        "recommendation": {
+          "valid": true,
+          "tablespace_name": "USERS",
+          "requested_size_gb": 1,
+          "safety_buffer_gb": 2,
+          "checks": [
+            {
+              "name": "tablespace_exists",
+              "status": "PASS",
+              "details": "Tablespace USERS exists."
+            },
+            {
+              "name": "tablespace_contents",
+              "status": "PASS",
+              "details": "Contents type = PERMANENT"
+            },
+            {
+              "name": "existing_datafiles",
+              "status": "PASS",
+              "details": "Found 1 existing datafile(s)."
+            },
+            {
+              "name": "storage_type",
+              "status": "PASS",
+              "details": "Detected storage type = FILESYSTEM"
+            },
+            {
+              "name": "directory_exists",
+              "status": "PASS",
+              "details": "Directory exists: C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB"
+            },
+            {
+              "name": "free_space_check",
+              "status": "PASS",
+              "details": "Free space on C:\\ = 48.16 GB; required = 3 GB (requested 1 GB + buffer 2 GB)"
+            }
+          ],
+          "existing_files": [
+            "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS01.DBF"
+          ],
+          "storage_type": "FILESYSTEM",
+          "recommended_directory": "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB",
+          "recommended_file_name": "USERS02.DBF",
+          "recommended_file_path": "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS02.DBF",
+          "drive_space": {
+            "drive_root": "C:\\",
+            "total_gb": 119.49,
+            "used_gb": 71.33,
+            "free_gb": 48.16
+          },
+          "sufficient_space": true,
+          "statement_preview": "ALTER TABLESPACE USERS ADD DATAFILE 'C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS02.DBF' SIZE 1G AUTOEXTEND ON NEXT 1G MAXSIZE 20G",
+          "errors": []
+        },
+        "status": "PLANNED",
+        "errors": []
+      },
+      "policy_result": {
+        "allowed": true,
+        "approval_required": true,
+        "execution_enabled": true,
+        "risk_level": "LOW",
+        "policy_messages": [
+          "Request is allowed by current policy.",
+          "Approval is required before execution.",
+          "Execution is enabled by policy."
+        ],
+        "policy_checks": [
+          {
+            "name": "planner_success",
+            "status": "PASS",
+            "details": "Planner success = True"
+          },
+          {
+            "name": "action_allowed",
+            "status": "PASS",
+            "details": "Action 'add_datafile' allowed actions = ['add_datafile']"
+          },
+          {
+            "name": "blocked_tablespace_check",
+            "status": "PASS",
+            "details": "Tablespace = USERS"
+          },
+          {
+            "name": "allowed_tablespace_check",
+            "status": "PASS",
+            "details": "No tablespace whitelist configured."
+          },
+          {
+            "name": "size_threshold_check",
+            "status": "PASS",
+            "details": "Requested size = 1 GB, max allowed = 20 GB"
+          },
+          {
+            "name": "recommendation_valid",
+            "status": "PASS",
+            "details": "Recommendation valid = True"
+          },
+          {
+            "name": "sufficient_space_check",
+            "status": "PASS",
+            "details": "Sufficient space = True"
+          }
+        ],
+        "environment_name": "UAT"
+      },
+      "approval_status": "APPROVED",
+      "execution_status": "COMPLETED",
+      "approver": "Pravanjan",
+      "approval_time": "2026-06-09 20:17:35",
+      "rejection_reason": "",
+      "created_at": "2026-06-09 20:17:23",
+      "updated_at": "2026-06-09 20:17:54"
+    },
+    "CR-20260609-202410-433427": {
+      "request_id": "CR-20260609-202410-433427",
+      "request_text": "add 1 gb datafile to USERS tablespace",
+      "action_type": "add_datafile",
+      "tablespace_name": "USERS",
+      "requested_size_gb": 1,
+      "planner_result": {
+        "success": true,
+        "action_type": "add_datafile",
+        "request_text": "add 1 gb datafile to USERS tablespace",
+        "tablespace_name": "USERS",
+        "requested_size_gb": 1,
+        "recommendation": {
+          "valid": true,
+          "tablespace_name": "USERS",
+          "requested_size_gb": 1,
+          "safety_buffer_gb": 2,
+          "checks": [
+            {
+              "name": "tablespace_exists",
+              "status": "PASS",
+              "details": "Tablespace USERS exists."
+            },
+            {
+              "name": "tablespace_contents",
+              "status": "PASS",
+              "details": "Contents type = PERMANENT"
+            },
+            {
+              "name": "existing_datafiles",
+              "status": "PASS",
+              "details": "Found 2 existing datafile(s)."
+            },
+            {
+              "name": "storage_type",
+              "status": "PASS",
+              "details": "Detected storage type = FILESYSTEM"
+            },
+            {
+              "name": "directory_exists",
+              "status": "PASS",
+              "details": "Directory exists: C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB"
+            },
+            {
+              "name": "free_space_check",
+              "status": "PASS",
+              "details": "Free space on C:\\ = 47.16 GB; required = 3 GB (requested 1 GB + buffer 2 GB)"
+            }
+          ],
+          "existing_files": [
+            "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS01.DBF",
+            "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS02.DBF"
+          ],
+          "storage_type": "FILESYSTEM",
+          "recommended_directory": "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB",
+          "recommended_file_name": "USERS03.DBF",
+          "recommended_file_path": "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS03.DBF",
+          "drive_space": {
+            "drive_root": "C:\\",
+            "total_gb": 119.49,
+            "used_gb": 72.33,
+            "free_gb": 47.16
+          },
+          "sufficient_space": true,
+          "statement_preview": "ALTER TABLESPACE USERS ADD DATAFILE 'C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS03.DBF' SIZE 1G AUTOEXTEND ON NEXT 1G MAXSIZE 20G",
+          "errors": []
+        },
+        "status": "PLANNED",
+        "errors": []
+      },
+      "policy_result": {
+        "allowed": true,
+        "approval_required": true,
+        "execution_enabled": true,
+        "risk_level": "LOW",
+        "policy_messages": [
+          "Request is allowed by current policy.",
+          "Approval is required before execution.",
+          "Execution is enabled by policy."
+        ],
+        "policy_checks": [
+          {
+            "name": "planner_success",
+            "status": "PASS",
+            "details": "Planner success = True"
+          },
+          {
+            "name": "action_allowed",
+            "status": "PASS",
+            "details": "Action 'add_datafile' allowed actions = ['add_datafile']"
+          },
+          {
+            "name": "blocked_tablespace_check",
+            "status": "PASS",
+            "details": "Tablespace = USERS"
+          },
+          {
+            "name": "allowed_tablespace_check",
+            "status": "PASS",
+            "details": "No tablespace whitelist configured."
+          },
+          {
+            "name": "size_threshold_check",
+            "status": "PASS",
+            "details": "Requested size = 1 GB, max allowed = 20 GB"
+          },
+          {
+            "name": "recommendation_valid",
+            "status": "PASS",
+            "details": "Recommendation valid = True"
+          },
+          {
+            "name": "sufficient_space_check",
+            "status": "PASS",
+            "details": "Sufficient space = True"
+          }
+        ],
+        "environment_name": "UAT"
+      },
+      "approval_status": "APPROVED",
+      "execution_status": "COMPLETED",
+      "approver": "Pravanjan",
+      "approval_time": "2026-06-09 20:24:28",
+      "rejection_reason": "",
+      "created_at": "2026-06-09 20:24:10",
+      "updated_at": "2026-06-09 20:24:44"
+    },
+    "CR-20260615-133539-579390": {
+      "request_id": "CR-20260615-133539-579390",
+      "request_text": "add 1 gb datafile to USERS tablespace",
+      "action_type": "add_datafile",
+      "tablespace_name": "USERS",
+      "requested_size_gb": 1,
+      "planner_result": {
+        "success": true,
+        "action_type": "add_datafile",
+        "request_text": "add 1 gb datafile to USERS tablespace",
+        "tablespace_name": "USERS",
+        "requested_size_gb": 1,
+        "recommendation": {
+          "valid": true,
+          "tablespace_name": "USERS",
+          "requested_size_gb": 1,
+          "safety_buffer_gb": 2,
+          "checks": [
+            {
+              "name": "tablespace_exists",
+              "status": "PASS",
+              "details": "Tablespace USERS exists."
+            },
+            {
+              "name": "tablespace_contents",
+              "status": "PASS",
+              "details": "Contents type = PERMANENT"
+            },
+            {
+              "name": "existing_datafiles",
+              "status": "PASS",
+              "details": "Found 3 existing datafile(s)."
+            },
+            {
+              "name": "storage_type",
+              "status": "PASS",
+              "details": "Detected storage type = FILESYSTEM"
+            },
+            {
+              "name": "directory_exists",
+              "status": "PASS",
+              "details": "Directory exists: C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB"
+            },
+            {
+              "name": "free_space_check",
+              "status": "PASS",
+              "details": "Free space on C:\\ = 44.22 GB; required = 3 GB (requested 1 GB + buffer 2 GB)"
+            }
+          ],
+          "existing_files": [
+            "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS01.DBF",
+            "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS02.DBF",
+            "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS03.DBF"
+          ],
+          "storage_type": "FILESYSTEM",
+          "recommended_directory": "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB",
+          "recommended_file_name": "USERS04.DBF",
+          "recommended_file_path": "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS04.DBF",
+          "drive_space": {
+            "drive_root": "C:\\",
+            "total_gb": 119.49,
+            "used_gb": 75.28,
+            "free_gb": 44.22
+          },
+          "sufficient_space": true,
+          "statement_preview": "ALTER TABLESPACE USERS ADD DATAFILE 'C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS04.DBF' SIZE 1G AUTOEXTEND ON NEXT 1G MAXSIZE 20G",
+          "errors": []
+        },
+        "status": "PLANNED",
+        "errors": []
+      },
+      "policy_result": {
+        "allowed": true,
+        "approval_required": true,
+        "execution_enabled": true,
+        "risk_level": "LOW",
+        "policy_messages": [
+          "Request is allowed by current policy.",
+          "Approval is required before execution.",
+          "Execution is enabled by policy."
+        ],
+        "policy_checks": [
+          {
+            "name": "planner_success",
+            "status": "PASS",
+            "details": "Planner success = True"
+          },
+          {
+            "name": "action_allowed",
+            "status": "PASS",
+            "details": "Action 'add_datafile' allowed actions = ['add_datafile']"
+          },
+          {
+            "name": "blocked_tablespace_check",
+            "status": "PASS",
+            "details": "Tablespace = USERS"
+          },
+          {
+            "name": "allowed_tablespace_check",
+            "status": "PASS",
+            "details": "No tablespace whitelist configured."
+          },
+          {
+            "name": "size_threshold_check",
+            "status": "PASS",
+            "details": "Requested size = 1 GB, max allowed = 20 GB"
+          },
+          {
+            "name": "recommendation_valid",
+            "status": "PASS",
+            "details": "Recommendation valid = True"
+          },
+          {
+            "name": "sufficient_space_check",
+            "status": "PASS",
+            "details": "Sufficient space = True"
+          }
+        ],
+        "environment_name": "UAT"
+      },
+      "approval_status": "APPROVED",
+      "execution_status": "COMPLETED",
+      "approver": "Pravanjan",
+      "approval_time": "2026-06-15 13:37:35",
+      "rejection_reason": "",
+      "created_at": "2026-06-15 13:35:39",
+      "updated_at": "2026-06-15 13:38:10"
+    },
+    "CR-20260616-062116-756664": {
+      "request_id": "CR-20260616-062116-756664",
+      "request_text": "add 1 gb datafile to USERS tablespace",
+      "action_type": "add_datafile",
+      "tablespace_name": "USERS",
+      "requested_size_gb": 1,
+      "planner_result": {
+        "success": true,
+        "action_type": "add_datafile",
+        "request_text": "add 1 gb datafile to USERS tablespace",
+        "tablespace_name": "USERS",
+        "requested_size_gb": 1,
+        "recommendation": {
+          "valid": true,
+          "tablespace_name": "USERS",
+          "requested_size_gb": 1,
+          "safety_buffer_gb": 2,
+          "checks": [
+            {
+              "name": "tablespace_exists",
+              "status": "PASS",
+              "details": "Tablespace USERS exists."
+            },
+            {
+              "name": "tablespace_contents",
+              "status": "PASS",
+              "details": "Contents type = PERMANENT"
+            },
+            {
+              "name": "existing_datafiles",
+              "status": "PASS",
+              "details": "Found 4 existing datafile(s)."
+            },
+            {
+              "name": "storage_type",
+              "status": "PASS",
+              "details": "Detected storage type = FILESYSTEM"
+            },
+            {
+              "name": "directory_exists",
+              "status": "PASS",
+              "details": "Directory exists: C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB"
+            },
+            {
+              "name": "free_space_check",
+              "status": "PASS",
+              "details": "Free space on C:\\ = 43.15 GB; required = 3 GB (requested 1 GB + buffer 2 GB)"
+            }
+          ],
+          "existing_files": [
+            "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS01.DBF",
+            "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS02.DBF",
+            "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS03.DBF",
+            "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS04.DBF"
+          ],
+          "storage_type": "FILESYSTEM",
+          "recommended_directory": "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB",
+          "recommended_file_name": "USERS05.DBF",
+          "recommended_file_path": "C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS05.DBF",
+          "drive_space": {
+            "drive_root": "C:\\",
+            "total_gb": 119.49,
+            "used_gb": 76.35,
+            "free_gb": 43.15
+          },
+          "sufficient_space": true,
+          "statement_preview": "ALTER TABLESPACE USERS ADD DATAFILE 'C:\\ORACLEDB_HOME\\ORADATA\\ORCL\\ORCLPDB\\USERS05.DBF' SIZE 1G AUTOEXTEND ON NEXT 1G MAXSIZE 20G",
+          "errors": []
+        },
+        "status": "PLANNED",
+        "errors": []
+      },
+      "policy_result": {
+        "allowed": true,
+        "approval_required": true,
+        "execution_enabled": true,
+        "risk_level": "LOW",
+        "policy_messages": [
+          "Request is allowed by current policy.",
+          "Approval is required before execution.",
+          "Execution is enabled by policy."
+        ],
+        "policy_checks": [
+          {
+            "name": "planner_success",
+            "status": "PASS",
+            "details": "Planner success = True"
+          },
+          {
+            "name": "action_allowed",
+            "status": "PASS",
+            "details": "Action 'add_datafile' allowed actions = ['add_datafile']"
+          },
+          {
+            "name": "blocked_tablespace_check",
+            "status": "PASS",
+            "details": "Tablespace = USERS"
+          },
+          {
+            "name": "allowed_tablespace_check",
+            "status": "PASS",
+            "details": "No tablespace whitelist configured."
+          },
+          {
+            "name": "size_threshold_check",
+            "status": "PASS",
+            "details": "Requested size = 1 GB, max allowed = 20 GB"
+          },
+          {
+            "name": "recommendation_valid",
+            "status": "PASS",
+            "details": "Recommendation valid = True"
+          },
+          {
+            "name": "sufficient_space_check",
+            "status": "PASS",
+            "details": "Sufficient space = True"
+          }
+        ],
+        "environment_name": "UAT"
+      },
+      "approval_status": "APPROVED",
+      "execution_status": "COMPLETED",
+      "approver": "Pravanjan",
+      "approval_time": "2026-06-16 06:24:50",
+      "rejection_reason": "",
+      "created_at": "2026-06-16 06:21:16",
+      "updated_at": "2026-06-16 06:25:13"
+    }
+  }
+}
