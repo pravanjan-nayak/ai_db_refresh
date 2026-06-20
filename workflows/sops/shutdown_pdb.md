@@ -1,6 +1,6 @@
 # NAME: pdb_startup_shutdown
 # TITLE: Pluggable Database (PDB) Startup and Shutdown Lifecycle SOP
-# KEYWORDS: startup pdb, shutdown pdb, restart pdb, bounce pdb, open pluggable database, close pluggable database, open pdb, close pdb
+# KEYWORDS: shutdown pdb, restart pdb, bounce pdb, close pluggable database, close pdb
 # DESCRIPTION: Real-time automated connection verification, state validation, and lifecycle cycling of a specific Pluggable Database (PDB).
 # DIAGNOSTIC_SQL_START
 SELECT 

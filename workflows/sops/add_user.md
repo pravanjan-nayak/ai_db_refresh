@@ -1,7 +1,11 @@
 # NAME: add_user
 # TITLE: Oracle Database Add User and Assign Permissions SOP
-# KEYWORDS: add user, create user, new user, assign privileges, grant access, create oracle user, user permissions, add database user, grant connect, grant read, grant write, create user dummy
-# DESCRIPTION: Create a new Oracle database user and assign appropriate privileges based on an approved request.
+# KEYWORDS: add user, create user, grant connect, oracle provisioning
+# DESCRIPTION: Securely provisions a new user with baseline application developer roles and standard quotas.
+# ACTION_REQUIRED: true
+# APPROVAL_REQUIRED: true
+# ACTION_MODE: sequential
+# STOP_ON_ERROR: true
 
 # DIAGNOSTIC_SQL_START
 SELECT 
@@ -15,22 +19,21 @@ FROM dba_users
 WHERE username = UPPER(:username)
 # DIAGNOSTIC_SQL_END
 
-# ACTION_REQUIRED: true
-# APPROVAL_REQUIRED: true
-# ACTION_TEMPLATE: CREATE USER {TARGET_USERNAME} IDENTIFIED BY "TempPass_2026!" PASSWORD EXPIRE DEFAULT TABLESPACE USERS QUOTA 50M ON USERS
+## Operational Summary
+This SOP checks whether an Oracle schema already exists. If it passes (`VALIDATION_STATUS = PASS`), the automated deployment pipeline executes a sequence of statements to safely provision the profile, set an expiring password, and grant default developer roles.
 
-# Oracle Database – Add User and Assign Permissions SOP
-**Version:** 2.0  |  **Ticket Type:** Automated Provisioning Request
-
+## Automated Action Pipeline Sequence
+# ACTION_SQL_START
+CREATE USER {TARGET_USERNAME} IDENTIFIED BY "TempPass_2026!" PASSWORD EXPIRE DEFAULT TABLESPACE USERS
 ---
-
-## Purpose
-Create a new user in an Oracle Database automatically. Ensures controlled access provisioning in compliance with security and operational standards.
-
+ALTER USER {TARGET_USERNAME} QUOTA 50M ON USERS
 ---
+GRANT CONNECT, CREATE SESSION TO {TARGET_USERNAME}
+---
+GRANT CREATE TABLE, CREATE VIEW, CREATE SEQUENCE TO {TARGET_USERNAME}
+# ACTION_SQL_END
 
-## Automated Execution Instructions
-1. Run the live diagnostic query above to confirm availability.
-2. Review the generated validation data panel row.
-3. If **VALIDATION_STATUS** reads `PASS: Username is not available`,select the row checkbox in the interactive UI.
-4. Click **"Approve & Execute"** to instantly build and apply your missing user profile configurations.
+## Verification Verification Checkpoints (Post-Execution)
+1. Verify the account status is set to `EXPIRED` (forcing immediate user reset on first login):
+   ```sql
+   SELECT username, account_status, default_tablespace FROM dba_users WHERE username = '{TARGET_USERNAME}';

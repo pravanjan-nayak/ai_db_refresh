@@ -1,12 +1,11 @@
 # ============================================================
-# FILE:    oraclemcp\server.py
-# ACTION:  REPLACE THE ENTIRE EXISTING FILE WITH THIS
-# LOCATION: C:\AI Agents\OracleAIDBAAgent-main\OracleAIDBAAgent-main\oraclemcp\server.py
+# Oracle MCP Server 
 #
-# What changed vs your original:
-#   - Fixed the incorrect syntax where tuples were being passed into run_sop_diagnostic
-#   - Now correctly passes dynamic parameters (sop_name, sop_content, question)
-#   - Preserved all other existing tool routes and FastAPI endpoint bindings
+# Updates:
+#   - Registered functions directly instead of fragile lambdas.
+#   - Added an automatic markdown block extractor inside sop_execute_tool
+#     to catch 'action_template: None' payloads by mining the 'content' string.
+#   - Added safe handling (**kwargs) to prevent unexpected key exceptions.
 # ============================================================
 
 from fastapi import FastAPI
@@ -34,15 +33,13 @@ app.add_middleware(
 def health_tool():
     return {"status": "MCP server running"}
 
-registry.register("health", lambda: health_tool())
+registry.register("health", health_tool)
 registry.register("query", query_tool)
 
 
-# ── NEW: SOP Diagnostic Tool ─────────────────────────────────────────────────
-# Runs the DIAGNOSTIC_SQL from the matched SOP .md file against real Oracle.
-# Returns live rows. No action is taken yet.
+# ── SOP Diagnostic Tool ───────────────────────────────────────────────────────
 
-def sop_diagnose_tool(question: str):
+def sop_diagnose_tool(question: str, **kwargs):
     try:
         from workflows.sop_matcher import match_sop
         from workflows.sop_executor import run_sop_diagnostic
@@ -62,14 +59,13 @@ def sop_diagnose_tool(question: str):
         sop_content = match.get("content", "")
         sop_name = match.get("task", "unknown")
 
-        # Fixed: Now passes variables directly into the parameters instead of string tuples
         result = run_sop_diagnostic(
             sop_name=sop_name, 
             content=sop_content, 
             question=question
         )
 
-        # Add SOP match info for the UI
+        # Add SOP match metadata for the frontend layer
         result["route"] = "sop"
         result["matched"] = True
         result["title"] = match.get("title")
@@ -89,22 +85,43 @@ def sop_diagnose_tool(question: str):
             "row_count": 0
         }
 
+registry.register("sop_diagnose", sop_diagnose_tool)
 
-registry.register("sop_diagnose", lambda question: sop_diagnose_tool(question))
 
+# ── SOP Execute Tool ─────────────────────────────────────────────────────────
 
-# ── NEW: SOP Execute Tool ─────────────────────────────────────────────────────
-# Fires the action SQL only after DBA clicks Approve in the UI.
-
-def sop_execute_tool(action_template: str, selected_row: dict, sop_name: str, approved_by: str = "DBA"):
+def sop_execute_tool(action_template: str = None, selected_row: dict = None, sop_name: str = None, approved_by: str = "DBA", **kwargs):
     try:
         from workflows.sop_executor import run_sop_action
 
+        # FIX: Parse the action SQL block out of markdown if action_template is missing/None
+        if not action_template and "content" in kwargs and kwargs["content"]:
+            raw_content = kwargs["content"]
+            if "# ACTION_SQL_START" in raw_content and "# ACTION_SQL_END" in raw_content:
+                try:
+                    parts = raw_content.split("# ACTION_SQL_START")
+                    action_block = parts[1].split("# ACTION_SQL_END")[0]
+                    action_template = action_block.strip()
+                    print(f"[SERVER SERVER-FIX] Successfully extracted fallback action_template from markdown configuration text.")
+                except Exception as parse_err:
+                    print(f"[SERVER ERROR] Failed parsing fallback template from content: {parse_err}")
+
+        # Fail safely if neither strategy extracted valid templates
+        if not action_template:
+            return {
+                "success": False,
+                "route": "sop",
+                "error": "Execution aborted: The action_template argument was None and fallback markdown extraction failed.",
+                "action_sql": "",
+                "message": "No valid SQL pipeline instructions located."
+            }
+
+        # Dispatch string template payload to execution worker
         result = run_sop_action(
             action_template=action_template,
             selected_row=selected_row,
             sop_name=sop_name,
-            approved_by=approved_by
+            approved_by=approved_by,
         )
         result["route"] = "sop"
         return result
@@ -119,15 +136,10 @@ def sop_execute_tool(action_template: str, selected_row: dict, sop_name: str, ap
             "message": "Action execution failed."
         }
 
-
-registry.register(
-    "sop_execute",
-    lambda action_template, selected_row, sop_name, approved_by="DBA":
-        sop_execute_tool(action_template, selected_row, sop_name, approved_by)
-)
+registry.register("sop_execute", sop_execute_tool)
 
 
-# ── FastAPI endpoints (unchanged) ────────────────────────────────────────────
+# ── FastAPI endpoints ─────────────────────────────────────────────────────────
 
 @app.get("/")
 def root():
@@ -137,10 +149,10 @@ def root():
 @app.post("/mcp/execute")
 def execute_tool(request: dict):
     try:
-        print(f"[SERVER] Request: {request}")
+        print(f"[SERVER] Incoming Request: {request}")
         result = router.handle(request)
-        print(f"[SERVER] Result: {result}")
+        print(f"[SERVER] Outgoing Result: {result}")
         return result
     except Exception as e:
-        print(f"[SERVER ERROR] {e}")
+        print(f"[SERVER ERROR] Execution handler failed: {e}")
         return {"success": False, "error": str(e)}

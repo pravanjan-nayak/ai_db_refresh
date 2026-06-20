@@ -2,6 +2,7 @@ import os
 import streamlit as st
 import pandas as pd
 import requests
+import re
 
 # ===== NEW BLOCK START: Added imports for add datafile activity =====
 from workflow_router import detect_change_request_route
@@ -69,6 +70,20 @@ st.markdown(
     }
     .stDataFrame, div[data-testid="stTable"] {
         font-size: calc(0.85rem + 0.1vw) !important;
+    }
+    .sop-step-card {
+        border-left: 4px solid #1E40AF !important;
+        background-color: #F8FAFC;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 8px;
+    }
+    .sop-status-pill {
+        font-size: 11px;
+        font-weight: bold;
+        background-color: #E2E8F0;
+        padding: 2px 6px;
+        border-radius: 4px;
     }
     </style>
     """,
@@ -186,7 +201,7 @@ def get_demo_db_identity():
         "db_name": "ORCL",
         "db_unique_name": "ORCLUAT",
         "service_name": "orclpdb",
-        "con_name": "ORCLPDB1",
+        "con_name": "ORCLPDB",
         "open_mode": "READ WRITE",
         "database_role": "PRIMARY"
     }
@@ -617,9 +632,12 @@ if st.session_state["current_view"] == "Assistant":
                             with st.expander("📄 Diagnostic SQL that was executed"):
                                 st.code(diag.get("diagnostic_sql", ""), language="sql")
 
-                            if diag.get("action_required") and diag.get("action_template"):
+                            # =====================================================================
+                            # 🔄 REFACTORED WORKFLOW: MULTI-STEP PIPELINE RENDERER
+                            # =====================================================================
+                            if diag.get("action_required") and (diag.get("action_steps") or diag.get("action_template")):
                                 st.markdown("---")
-                                st.markdown("#### ⚡ Select a row and approve action")
+                                st.markdown("#### ⚡ Select target entity and approve operation pipeline")
 
                                 rows = diag["rows"]
                                 columns = diag["columns"]
@@ -638,37 +656,63 @@ if st.session_state["current_view"] == "Assistant":
 
                                 row_labels = [make_label(r) for r in rows]
                                 selected_label = st.selectbox(
-                                    "Select the row to act on:",
+                                    "Select the data context row to map placeholders against:",
                                     options=row_labels,
                                     key="sop_row_selector"
                                 )
                                 selected_row = rows[row_labels.index(selected_label)]
 
                                 from workflows.sop_executor import build_action_sql
-                                preview_sql = build_action_sql(diag["action_template"], selected_row)
-                                st.warning(
-                                    f"⚠️ This SQL will be executed on Oracle after approval:\n"
-                                    f"```sql\n{preview_sql}\n```"
-                                )
+                                
+                                # Fetch steps sequence or fallback to singular legacy blueprint
+                                steps_to_preview = diag.get("action_steps", [])
+                                if not steps_to_preview and diag.get("action_template"):
+                                    steps_to_preview = [diag.get("action_template")]
+
+                                st.warning("⚠️ **Review Script Execution Checklist before committing deployment:**")
+                                
+                                # Render individual sequential steps inside dedicated HTML code blocks
+                                for idx, step_blueprint in enumerate(steps_to_preview, start=1):
+                                    preview_sql = build_action_sql(step_blueprint, selected_row)
+                                    st.markdown(
+                                        f"""
+                                        <div class="sop-step-card">
+                                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                                <span style="font-weight: bold; color: #1E3A8A;">Step {idx}</span>
+                                                <span class="sop-status-pill">Sequential Task</span>
+                                            </div>
+                                        </div>
+                                        """, 
+                                        unsafe_allow_html=True
+                                    )
+                                    st.code(preview_sql, language="sql")
+
+                                # Safety circuit breaker metadata configuration badge tracking
+                                mode_badge = str(diag.get("action_mode", "sequential")).upper()
+                                stop_flag = "ENABLED" if diag.get("stop_on_error", True) else "DISABLED"
+                                st.info(f"⚙️ **Workflow Engine Protocol:** MODE: `{mode_badge}` | STOP_ON_ERROR: `{stop_flag}`")
 
                                 col_approve, col_cancel = st.columns(2)
 
                                 with col_approve:
-                                    if st.button("✅ Approve & Execute", key="sop_approve_btn", type="primary"):
-                                        with st.spinner("Executing Database action on Oracle..."):
+                                    if st.button("✅ Approve & Execute Pipeline", key="sop_approve_btn", type="primary"):
+                                        with st.spinner("Executing sequential database actions on Oracle..."):
+                                            # Pass full file content context down so execution engine can run the sequence
                                             exec_result = call_mcp("sop_execute", {
-                                                "action_template": diag["action_template"],
+                                                "action_template": diag.get("action_template"),
                                                 "selected_row": selected_row,
                                                 "sop_name": diag["sop_name"],
-                                                "approved_by": "DBA"
+                                                "approved_by": "DBA",
+                                                "content": result.get("sop_content")  # Full content token
                                             })
                                             st.session_state["execution_result"] = exec_result
                                             st.rerun()
 
                                 with col_cancel:
-                                    if st.button("❌ Cancel", key="sop_cancel_btn"):
+                                    if st.button("❌ Cancel Operations", key="sop_cancel_btn"):
                                         st.session_state["sop_diagnostic_result"] = None
                                         st.rerun()
+                            # =====================================================================
 
                             else:
                                 st.success("✅ Diagnostic complete. No further action required for this SOP.")
@@ -766,7 +810,7 @@ if st.session_state["current_view"] == "Assistant":
                     st.code(result["sql"], language="sql")
 
     # ============================================================
-    # SHOW EXECUTION RESULT (MERGED WITH TARGET IDENTITY LOGGING)
+    # SHOW EXECUTION RESULT (EXTENDED FOR PROGRESSIVE PIPELINES)
     # ============================================================
     if st.session_state["execution_result"]:
         res_payload = st.session_state["execution_result"]
@@ -776,12 +820,21 @@ if st.session_state["current_view"] == "Assistant":
         if res_payload.get("success"):
             st.success("✅ Execution completed successfully!")
             
-            # Show the active structural target container context where modifications took place
             db_id = get_demo_db_identity()
             st.info(f"📁 **Active Database Target Container Context:** `{db_id['db_name']}` / PDB: `{db_id['con_name']}`")
             
-            if "action_sql" in res_payload:
+            # Render individual steps trace output matrix if it was a pipeline sequence execution
+            if "steps_executed" in res_payload and res_payload["steps_executed"]:
+                st.markdown("**Executed Pipeline Steps Execution Matrix:**")
+                st.markdown("**Executed Pipeline Steps Execution Matrix:**")
+                for trace in res_payload["steps_executed"]:
+                    status_emoji = "✅" if trace.get("status") == "OK" else "❌"
+                    st.write(f"{status_emoji} **Step {trace.get('step')}:** `{trace.get('sql')}`")
+                    if trace.get("rows"):
+                        st.dataframe(pd.DataFrame(trace["rows"]))
+            elif "action_sql" in res_payload:
                 st.info(f"**Executed SQL Command:** `{res_payload['action_sql']}`")
+                
             if "message" in res_payload:
                 st.write(res_payload["message"])
                 
@@ -789,6 +842,12 @@ if st.session_state["current_view"] == "Assistant":
             st.error("❌ Execution failed")
             if "error" in res_payload:
                 st.code(res_payload["error"])
+
+            if "steps_executed" in res_payload and res_payload["steps_executed"]:
+                st.markdown("**Pipeline Trace at Failure Intersection:**")
+                for trace in res_payload["steps_executed"]:
+                    status_indicator = "✅" if trace.get("status") == "OK" else ("❌" if trace.get("status") == "FAILED" else "🚫")
+                    st.write(f"{status_indicator} **Step {trace.get('step')}:** Status Code: `{trace.get('status')}`")
 
         if res_payload.get("workflow"):
             st.subheader("🔁 Workflow Details")
